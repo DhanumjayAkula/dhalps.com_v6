@@ -11,10 +11,11 @@ The take carries its own interface. The HUD, the eleven project cards, the
 footage, not drawn in HTML. Three things follow from that:
 
 - **The frame is never cropped.** Crop a pixel and you cut somebody's button in
-  half, so the 16:9 frame is letterboxed whole. The bands either side are not a
-  flat colour: each is the take's own outermost few pixels, drawn to a canvas one
-  pixel wide and stretched to fill the band, repainted on every frame the video
-  presents. The picture's edge simply carries on to the edge of the screen.
+  half, so the 16:9 frame is letterboxed whole. The bands either side are
+  plain colour, but not one fixed colour: each is the median floor colour at its
+  own edge of the frame (machine, cards, toys and court lines thrown out),
+  re-read a few times a second and eased in, so it follows the floor as it
+  shifts from amber to deep orange without ever showing a pattern.
 - **What is clickable is a transparent anchor** laid over the pixels that are
   supposed to be pressed — the two pills in the HUD, the button on each card,
   the links on the closing panel, and all eleven numbers in the tick row (tap a
@@ -47,9 +48,14 @@ first 240ms pause (`GAP`), and it moves the take exactly one beat however hard
 it was. A held arrow key counts once.
 
 **The scroll cue.** When the take has parked and nobody has moved for 1.4s, a
-small pill rises just above the footage's own SCROLL label — a mouse with its
-wheel rolling, or "Swipe up" with climbing chevrons on touch screens. It goes
-the instant anyone does anything, and never shows on the last beat.
+small pill rises at the bottom centre, under the tick row — a mouse with its
+wheel rolling, or "Swipe up" with climbing chevrons on touch screens (icon only
+on a small frame). It goes the instant anyone does anything, and never shows on
+the last beat.
+
+**After a tick.** A click leaves no focus on the tick, the arrow and Page keys
+drive the take even with a link focused, and a scroll that lands during the
+crossfade is held and run the moment the cut finishes.
 
 ## The video
 
