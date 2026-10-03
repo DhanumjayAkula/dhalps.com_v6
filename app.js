@@ -17,7 +17,11 @@ const BEATS = [
   { t:   0.00, cue: 'the machine, far off' },
   { t:   8.00, cue: 'framed' },
   { t:  19.00, cue: 'Sidekick',                                    acts: 1 },
-  { t:  24.00, cue: 'the card goes' },
+  /* 24.5, not 24.0: the figure clears the right edge of frame at almost exactly
+     24.0, so a park on the round number catches a sliver of him hanging off the
+     side. He is gone by 24.2; the hold runs to 25.7, so half a second of slack
+     costs nothing. */
+  { t:  24.50, cue: 'the card goes, and so does he' },
   { t:  35.00, cue: 'The Efficiency Engine',                       acts: 1 },
   { t:  41.00, cue: 'the tray empties' },
   { t:  63.00, cue: 'round one: Jimmy AI, Neat Freak, Kyron',      acts: 3 },
