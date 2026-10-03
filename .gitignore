@@ -3,5 +3,9 @@
 # not two.
 Ritz.mp4
 
+# and the compressed master Dhanumjay made from it (19MB). video.mp4 is the web
+# encode derived from this one; shipping both would double the clone.
+Ritz_1.mp4
+
 .DS_Store
 Thumbs.db

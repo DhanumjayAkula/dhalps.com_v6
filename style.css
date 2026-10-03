@@ -249,7 +249,7 @@ body {
    The frame is 16:9 with an interface drawn into its corners. Letterboxed into
    a portrait phone it is a stamp, and no layout of ours can fix that — the only
    honest answer is to ask for the other orientation. */
-.turn { display: none; }
+.turn, .skip { display: none; }
 
 @media (orientation: portrait) and (max-width: 900px) {
   .turn {
@@ -304,7 +304,7 @@ body {
   #rotate {
     position: fixed;
     left: 50%;
-    bottom: 18%;
+    top: 52%;
     z-index: 8;
     transform: translateX(-50%) translateY(12px);
     opacity: 0;
@@ -317,13 +317,47 @@ body {
     transform: translateX(-50%) translateY(0);
     transition: opacity .4s ease, transform .5s cubic-bezier(.18, .78, .28, 1), visibility 0s;
   }
+  /* Upright, a 16:9 frame with an interface drawn into its corners is a strip
+     two centimetres tall — and no layout of ours can grow it, because growing it
+     means cropping somebody's button. So portrait stops pretending the strip is
+     the page: it lifts it to the top as a preview, and the ask to turn the phone
+     becomes the thing in the middle of the screen. */
+  #stage { align-content: start; padding-top: 13vh; }
+  #frame {
+    border-radius: 7px;
+    overflow: hidden;
+    box-shadow: 0 16px 44px rgba(60, 32, 0, .3);
+  }
+
   #rotate { pointer-events: auto; cursor: pointer; }
   #rotate .turn {
+    flex-direction: column;
+    gap: 14px;
+    padding: 24px 30px 18px;
+    border-radius: 24px;
+    text-align: center;
     background: rgba(46, 26, 0, .36);
     backdrop-filter: blur(12px) saturate(1.2);
     -webkit-backdrop-filter: blur(12px) saturate(1.2);
     box-shadow: 0 0 0 1px rgba(255, 255, 255, .26), 0 14px 34px rgba(50, 26, 0, .3);
   }
+  #rotate .turn .ph { width: 40px; height: 40px; }
+  #rotate .turn span { align-items: center; font-size: 13px; gap: 5px; }
+  #rotate .turn span i { font-size: 9.5px; }
+
+  /* the way out, for anyone who would rather squint than turn */
+  .skip {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: 9.5px;
+    font-weight: 400;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, .55);
+    border-bottom: 1px solid rgba(255, 255, 255, .28);
+    padding-bottom: 3px;
+  }
+  #loader .skip { display: none; }
 
   .rig { width: 150px; height: 200px; }
   .cap { font-size: 10px; letter-spacing: .1em; }
