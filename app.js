@@ -136,7 +136,11 @@ TICK_BEAT.forEach((b, i) => {
     x: TICK.x + i * TICK.step, y: TICK.y, w: TICK.w, h: TICK.h,
     href: '#', label: `Go to project ${String(i + 1).padStart(2, '0')}`,
   }, 'tick');
-  el.addEventListener('click', e => { e.preventDefault(); jump(b); });
+  el.addEventListener('click', e => {
+    e.preventDefault();
+    if (e.detail) el.blur();          // a mouse or tap click leaves no focus behind; a keyboard one keeps it
+    jump(b);
+  });
   targets.push({ beat: '*', el });
 });
 
@@ -195,6 +199,7 @@ const fade = document.createElement('canvas');
 fade.id = 'xfade';
 plate.after(fade);
 let cutting = 0;
+let pending = 0;          // a scroll that arrived mid-cut, run as soon as it lands
 
 function jump(n) {
   n = clamp(n, 0, BEATS.length - 1);
@@ -211,13 +216,14 @@ function jump(n) {
 
   beat = n;
   busy = true;
+  pending = 0;
   const id = ++cutting;
   const done = () => {
     if (cutting !== id) return;
     cutting = 0;
     park();
-    paint();
     requestAnimationFrame(() => fade.classList.add('out'));
+    if (pending) { const d = pending; pending = 0; go(d); }
   };
   plate.addEventListener('seeked', () => afterFrame(done), { once: true });
   setTimeout(done, 900);              // never strand the page behind the still
@@ -295,7 +301,7 @@ function park() {
   if (Math.abs(plate.currentTime - BEATS[beat].t) > EPS) plate.currentTime = BEATS[beat].t;
   busy = false;
   arm(beat);
-  paint();
+  paint(true);
   scheduleCue();
 }
 
@@ -305,24 +311,31 @@ let acc = 0, quiet = 0, spent = false;
 
 function intent(d) {
   hideCue();
-  if (!revealed || cutting) return;
-  if (busy) { beat = clamp(beat + d, 0, BEATS.length - 1); drive(); return; }  // a new gesture mid-run chains on
+  if (!revealed) return false;
+  if (cutting) { pending = d; return true; }   // mid-crossfade: hold it, run it when the cut lands
+  if (busy) { beat = clamp(beat + d, 0, BEATS.length - 1); drive(); return true; }  // a new gesture mid-run chains on
   go(d);
+  return true;
 }
 
 addEventListener('wheel', e => {
   e.preventDefault();
+  // a scroll is never aimed at a link: let go of any tick or button still holding focus
+  if (document.activeElement && document.activeElement.closest && document.activeElement.closest('#hits')) document.activeElement.blur();
   clearTimeout(quiet);
   quiet = setTimeout(() => { acc = 0; spent = false; }, GAP);
   if (spent) return;                  // this gesture has had its beat; the rest is momentum
   acc += e.deltaY * (e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? innerHeight : 1);
-  if (Math.abs(acc) >= NUDGE) { spent = true; const d = Math.sign(acc); acc = 0; intent(d); }
+  if (Math.abs(acc) >= NUDGE) { const d = Math.sign(acc); acc = 0; spent = intent(d); }
 }, { passive: false });
 
 addEventListener('keydown', e => {
   const d = { ArrowDown: 1, PageDown: 1, ' ': 1, ArrowUp: -1, PageUp: -1 }[e.key];
   if (d === undefined) return;
-  if (e.target.closest('a')) return;      // let a target take Enter/Space
+  /* only Space is a link's own key; the arrows and Page keys always drive the
+     take, even with a tick or a card button focused — that focus is what used
+     to leave the keyboard dead after clicking a tick */
+  if (e.key === ' ' && e.target.closest('a')) return;
   e.preventDefault();
   if (e.repeat) return;                    // a held key is one press, like a swipe
   intent(d);
@@ -338,26 +351,26 @@ addEventListener('touchmove', e => {
 addEventListener('touchend', () => { touchY = null; });
 
 // ---- the bands either side ---------------------------------------------------
-/* A screen wider (or taller) than 16:9 leaves bands round the frame. A flat
-   colour never matched: the take's floor shifts from amber to deep orange
-   between beats and darkens toward its corners, so any one paint was wrong
-   somewhere. Instead each band is the take's own outermost few pixels, carried
-   outwards — a canvas one pixel across and a few dozen tall, drawn from the
-   frame's edge column and stretched by the browser to fill the band. The edge
-   of the picture simply continues to the edge of the screen, and it follows the
-   footage frame by frame. */
-const STRIP = 6;          // source pixels averaged at each edge
+/* A screen wider (or taller) than 16:9 leaves bands round the frame. They are
+   plain colour — no picture in them — but not one fixed colour: the take's floor
+   shifts from amber to deep orange between beats, so any single paint is wrong
+   somewhere. Each band is filled with the floor colour at its own edge of the
+   frame: a strip of the outermost pixels is shrunk to 32 samples, anything that
+   is not floor (the blue machine, a card, a toy, the white court lines) is
+   thrown out, and the median of what is left is the colour. It is re-read a few
+   times a second while the take moves, and the band eases to it, so it follows
+   the floor without ever showing a pattern. */
+const STRIP = 8;          // source pixels at each edge
+const SAMPLES = 32;
 const BANDS = ['l', 'r', 't', 'b'].map(k => {
-  const c = document.createElement('canvas');
-  c.className = `band ${k}`;
-  c.width  = k === 'l' || k === 'r' ? 1 : 48;
-  c.height = k === 'l' || k === 'r' ? 32 : 1;
-  stage.prepend(c);
-  const ctx = c.getContext('2d', { alpha: false });
-  ctx.imageSmoothingEnabled = true;
-  ctx.imageSmoothingQuality = 'high';
-  return { k, c, ctx, on: false };
+  const el = document.createElement('div');
+  el.className = `band ${k}`;
+  stage.prepend(el);
+  return { k, el, on: false, rgb: '' };
 });
+const probe = document.createElement('canvas');
+probe.width = SAMPLES; probe.height = SAMPLES + 2;   // cols 0/1: left/right edge · last two rows: top/bottom edge
+const pctx = probe.getContext('2d', { willReadFrequently: true });
 
 function place() {
   const r = frame.getBoundingClientRect();
@@ -365,33 +378,62 @@ function place() {
   const off = upright.matches;        // upright phones keep the preview card
   const px = v => `${Math.round(v)}px`;
   for (const b of BANDS) {
-    const s = b.c.style;
-    if (b.k === 'l') { b.on = r.left > 1;      Object.assign(s, { left: '0', top: px(r.top), width: px(r.left + 1), height: px(r.height) }); }
-    if (b.k === 'r') { b.on = W - r.right > 1; Object.assign(s, { left: px(r.right - 1), top: px(r.top), width: px(W - r.right + 1), height: px(r.height) }); }
-    if (b.k === 't') { b.on = r.top > 1;       Object.assign(s, { left: px(r.left), top: '0', width: px(r.width), height: px(r.top + 1) }); }
-    if (b.k === 'b') { b.on = H - r.bottom > 1; Object.assign(s, { left: px(r.left), top: px(r.bottom - 1), width: px(r.width), height: px(H - r.bottom + 1) }); }
+    const s = b.el.style;
+    if (b.k === 'l') { b.on = r.left > 1;       Object.assign(s, { left: '0', top: '0', width: px(r.left + 1), height: '100%' }); }
+    if (b.k === 'r') { b.on = W - r.right > 1;  Object.assign(s, { left: px(r.right - 1), top: '0', width: px(W - r.right + 1), height: '100%' }); }
+    if (b.k === 't') { b.on = r.top > 1;        Object.assign(s, { left: '0', top: '0', width: '100%', height: px(r.top + 1) }); }
+    if (b.k === 'b') { b.on = H - r.bottom > 1; Object.assign(s, { left: '0', top: px(r.bottom - 1), width: '100%', height: px(H - r.bottom + 1) }); }
     if (off) b.on = false;
-    b.c.classList.toggle('on', b.on);
+    b.el.classList.toggle('on', b.on);
   }
-  paint();
+  paint(true);
 }
 
-function paint() {
+// the floor: warm, saturated, not too dark — the machine is blue, the cards are
+// blue, the court lines are near-white, the toys are everything else
+function floorish(r, g, b) {
+  return r > 120 && r >= g && g > b && r - b > 90 && r - g < 120;
+}
+function median(list) {
+  const v = list.slice().sort((x, y) => x - y);
+  return v[v.length >> 1];
+}
+function tone(data, at) {
+  const R = [], G = [], B = [];
+  for (const i of at) {
+    const r = data[i], g = data[i + 1], b = data[i + 2];
+    if (floorish(r, g, b)) { R.push(r); G.push(g); B.push(b); }
+  }
+  if (R.length < 4) return '';        // edge covered: keep the last colour
+  return `rgb(${median(R)}, ${median(G)}, ${median(B)})`;
+}
+
+let lastPaint = 0;
+function paint(now) {
   const vw = plate.videoWidth, vh = plate.videoHeight;
-  if (!vw || plate.readyState < 2) return;
+  if (!vw || plate.readyState < 2 || !BANDS.some(b => b.on)) return;
+  const t = performance.now();
+  if (!now && t - lastPaint < 150) return;   // a few reads a second is plenty for a plain colour
+  lastPaint = t;
+  let data;
+  try {
+    pctx.drawImage(plate, 0, 0, STRIP, vh, 0, 0, 1, SAMPLES);
+    pctx.drawImage(plate, vw - STRIP, 0, STRIP, vh, 1, 0, 1, SAMPLES);
+    pctx.drawImage(plate, 0, 0, vw, STRIP, 0, SAMPLES, SAMPLES, 1);
+    pctx.drawImage(plate, 0, vh - STRIP, vw, STRIP, 0, SAMPLES + 1, SAMPLES, 1);
+    data = pctx.getImageData(0, 0, SAMPLES, SAMPLES + 2).data;
+  } catch (_) { return; }             // a frame not ready yet: the ground colour shows
+  const col = x => Array.from({ length: SAMPLES }, (_, y) => (y * SAMPLES + x) * 4);
+  const row = y => Array.from({ length: SAMPLES }, (_, x) => (y * SAMPLES + x) * 4);
+  const at = { l: col(0), r: col(1), t: row(SAMPLES), b: row(SAMPLES + 1) };
   for (const b of BANDS) {
     if (!b.on) continue;
-    const { ctx, c } = b;
-    try {
-      if (b.k === 'l') ctx.drawImage(plate, 0, 0, STRIP, vh, 0, 0, 1, c.height);
-      if (b.k === 'r') ctx.drawImage(plate, vw - STRIP, 0, STRIP, vh, 0, 0, 1, c.height);
-      if (b.k === 't') ctx.drawImage(plate, 0, 0, vw, STRIP, 0, 0, c.width, 1);
-      if (b.k === 'b') ctx.drawImage(plate, 0, vh - STRIP, vw, STRIP, 0, 0, c.width, 1);
-    } catch (_) { /* a frame not ready yet: the flat ground shows for a moment */ }
+    const c = tone(data, at[b.k]);
+    if (c && c !== b.rgb) { b.rgb = c; b.el.style.backgroundColor = c; }
   }
 }
 
-// repaint on every frame the video presents, and nowhere else
+// re-read on the frames the video presents (throttled above), and on every park
 if (plate.requestVideoFrameCallback) {
   const each = () => { paint(); plate.requestVideoFrameCallback(each); };
   plate.requestVideoFrameCallback(each);
@@ -399,16 +441,17 @@ if (plate.requestVideoFrameCallback) {
   let loop = 0;
   const tick = () => { paint(); if (!plate.paused) loop = requestAnimationFrame(tick); };
   plate.addEventListener('play', () => { cancelAnimationFrame(loop); loop = requestAnimationFrame(tick); });
-  plate.addEventListener('seeked', paint);
 }
+plate.addEventListener('seeked', () => paint(true));
 plate.addEventListener('loadeddata', place);
 addEventListener('resize', place);
 
 // ---- the scroll cue -------------------------------------------------------------
 /* The footage says SCROLL in small type in its corner, which is easy to miss.
    So when the take has parked and nobody has moved for a moment, a small cue
-   rises just above that word — a mouse with its wheel turning, or on a touch
-   screen two chevrons climbing — and it goes the instant anyone does anything.
+   rises at the bottom centre, under the tick row — the one strip of the frame
+   that stays clear on every beat — a mouse with its wheel turning, or on a touch
+   screen two chevrons climbing. It goes the instant anyone does anything.
    Never on the last beat: there is nothing further to scroll to. */
 const IDLE = 1400;
 const touchy = matchMedia('(hover: none) and (pointer: coarse)');

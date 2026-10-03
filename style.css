@@ -36,12 +36,14 @@ body {
   container-type: inline-size;     /* the cue below is sized in cqw, so it scales with the picture */
 }
 
-/* the bands: the take's own edge, carried out to the edge of the screen (app.js) */
+/* the bands: plain colour, the floor's own at that edge of the frame (app.js) */
 .band {
   position: fixed;
   z-index: 0;
   display: none;
   pointer-events: none;
+  background-color: #e8960a;        /* until the first frame is read */
+  transition: background-color .6s linear;
 }
 .band.on { display: block; }
 
@@ -99,6 +101,16 @@ body {
   box-shadow: 0 0 0 6px rgba(255, 255, 255, .14);
 }
 #hits a.tick { border-radius: 7px; }
+/* The ticks are a map the footage already lights up — the current project's box
+   is filled in by the take itself. A white ring left on the one the pointer
+   happens to rest on read as that number being selected, and a scroll that
+   followed looked as if it had pressed it. So a tick shows nothing on hover
+   (the pointer cursor says it can be clicked) and rings only for the keyboard. */
+#hits a.tick.on:hover:not(:focus-visible) {
+  opacity: 0;
+  outline: none;
+  box-shadow: none;
+}
 
 /* ---- the one piece of chrome the footage does not carry -------------------- */
 #wait {
@@ -129,36 +141,38 @@ body {
 }
 
 /* ---- the scroll cue ---------------------------------------------------------
-   Sits just above the footage's own SCROLL label in the bottom-left corner — the
-   one patch of floor that stays clear on every beat. Placed and sized in the
-   frame's own units, like the hit targets. */
+   Bottom centre, in the strip under the tick row — the one patch of the frame
+   that stays clear on every beat. Placed and sized in the frame's own units,
+   like the hit targets. */
 #cue {
   position: absolute;
-  left: 1.6cqw;
-  bottom: 5.2cqw;
+  left: 50%;
+  bottom: .32cqw;
   display: flex;
   align-items: center;
-  gap: .7cqw;
-  padding: .55cqw 1.05cqw .55cqw .75cqw;
+  gap: .5cqw;
+  padding: .22cqw .8cqw .22cqw .6cqw;
   border-radius: 999px;
   background: rgba(46, 26, 0, .26);
-  box-shadow: 0 0 0 1px rgba(255, 255, 255, .34), 0 .5cqw 1.4cqw rgba(60, 32, 0, .22);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, .34), 0 .3cqw 1cqw rgba(60, 32, 0, .2);
   color: #fff;
   font-family: var(--mono);
-  font-size: max(8px, .7cqw);
+  font-size: max(7px, .56cqw);
+  line-height: 1;
   font-weight: 500;
   letter-spacing: .18em;
   text-transform: uppercase;
+  white-space: nowrap;
   pointer-events: none;
   opacity: 0;
   visibility: hidden;
-  transform: translateY(.6cqw);
+  transform: translate(-50%, .5cqw);
   transition: opacity .35s ease, transform .5s cubic-bezier(.18, .78, .28, 1), visibility 0s linear .5s;
 }
 #cue.on {
   opacity: 1;
   visibility: visible;
-  transform: none;
+  transform: translate(-50%, 0);
   transition: opacity .45s ease, transform .6s cubic-bezier(.18, .78, .28, 1), visibility 0s;
 }
 #cue b { font-weight: 500; }
@@ -166,8 +180,8 @@ body {
 /* mouse: an outline with the wheel rolling down */
 #cue .mouse {
   position: relative;
-  width: max(10px, .86cqw);
-  height: max(15px, 1.3cqw);
+  width: max(8px, .62cqw);
+  height: max(11px, .92cqw);
   border: 1.5px solid #fff;
   border-radius: 999px;
 }
@@ -190,7 +204,7 @@ body {
 }
 
 /* touch: two chevrons climbing */
-#cue .swipe { display: none; position: relative; width: 12px; height: 16px; }
+#cue .swipe { display: none; position: relative; width: 10px; height: 12px; }
 #cue .swipe i {
   position: absolute;
   left: 3px;
@@ -201,8 +215,8 @@ body {
   transform: rotate(45deg);
   animation: climb 1.4s ease-in-out infinite;
 }
-#cue .swipe i:nth-child(1) { top: 8px; }
-#cue .swipe i:nth-child(2) { top: 3px; animation-delay: .18s; }
+#cue .swipe i:nth-child(1) { top: 6px; left: 2px; }
+#cue .swipe i:nth-child(2) { top: 2px; left: 2px; animation-delay: .18s; }
 @keyframes climb {
   0%   { opacity: 0; translate: 0 3px; }
   40%  { opacity: 1; }
@@ -210,6 +224,18 @@ body {
 }
 #cue.touch .mouse { display: none; }
 #cue.touch .swipe { display: block; }
+
+/* a small frame (a phone held sideways) has no room under the ticks for words:
+   the icon alone, in a little round chip */
+@container (max-width: 1000px) {
+  #cue { bottom: 1px; padding: 2px 5px; gap: 0; }
+  #cue b { display: none; }
+  #cue .swipe { width: 10px; height: 10px; }
+  #cue .swipe i { width: 5px; height: 5px; }
+  #cue .swipe i:nth-child(1) { top: 5px; }
+  #cue .swipe i:nth-child(2) { top: 1px; }
+  #cue .mouse { width: 7px; height: 10px; }
+}
 
 @media (prefers-reduced-motion: reduce) {
   #cue .mouse i, #cue .swipe i { animation: none; opacity: 1; }
