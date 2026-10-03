@@ -1,0 +1,337 @@
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --ground: #d79e00;        /* sampled off the take's own floor, so the bands blend */
+  --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+html { background: var(--ground); }
+html, body { height: 100%; overflow: hidden; overscroll-behavior: none; }
+
+body {
+  font: 400 15px/1.5 "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  color: #fff;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ---- the stage -------------------------------------------------------------
+   This take is not a backdrop with a page built over it: the HUD, the cards and
+   the tick row are rendered into the footage. Crop a single pixel and you cut
+   someone's interface in half, so the frame is letterboxed whole and the bands
+   are painted the take's own ground colour. */
+#stage {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background: var(--ground);
+}
+
+#frame {
+  position: relative;
+  width: min(100%, calc(100vh * 16 / 9));
+  aspect-ratio: 16 / 9;
+}
+
+#plate {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: fill;          /* #frame is already 16:9 — nothing to crop or letterbox */
+  pointer-events: none;
+  /* its own compositor layer, so nothing above can force a repaint of the
+     frame being presented */
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  will-change: transform;
+}
+
+/* ---- the hit layer ---------------------------------------------------------
+   Every target is placed in the footage's own coordinates (percentages of a
+   1920x1080 frame), so it tracks the picture at any size without a line of
+   layout maths. They carry a label for screen readers and a focus ring for the
+   keyboard; otherwise they are invisible, because the button is already in the
+   frame underneath. */
+#hits { position: absolute; inset: 0; }
+
+#hits a {
+  position: absolute;
+  display: block;
+  border-radius: 10px;
+  text-indent: -9999px;
+  overflow: hidden;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .25s ease;
+}
+#hits a.on { pointer-events: auto; }
+#hits a.on:hover,
+#hits a.on:focus-visible {
+  opacity: 1;
+  outline: 2px solid rgba(255, 255, 255, .9);
+  outline-offset: 3px;
+  box-shadow: 0 0 0 6px rgba(255, 255, 255, .14);
+}
+#hits a.tick { border-radius: 7px; }
+
+/* ---- the one piece of chrome the footage does not carry -------------------- */
+#wait {
+  position: fixed;
+  left: 50%;
+  bottom: 7%;
+  transform: translateX(-50%) translateY(8px);
+  padding: 9px 18px;
+  border-radius: 999px;
+  background: rgba(30, 18, 0, .5);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, .22);
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity .3s ease, transform .4s ease, visibility 0s linear .4s;
+}
+#wait.on {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(0);
+  transition: opacity .3s ease, transform .4s ease, visibility 0s;
+}
+
+/* ---- read, not looked at --------------------------------------------------- */
+.sr {
+  position: absolute;
+  width: 1px; height: 1px;
+  margin: -1px; padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ---- loader ----------------------------------------------------------------
+   The take is streamed rather than fetched whole — it is too long to hold the
+   page on the full download — so the claw rides down on how much has actually
+   buffered, and the page opens once there is enough ahead to scroll into. */
+#loader {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  --p: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: var(--ground);
+  transition: opacity .55s ease;
+}
+#loader.gone { opacity: 0; pointer-events: none; }
+
+.rig { position: relative; width: 190px; height: 224px; }
+.rail {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 7px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, .3);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .45);
+}
+.lamps { position: absolute; top: -16px; right: 6px; display: flex; gap: 8px; }
+.lamps i {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, .35);
+  animation: lamp 1.35s ease-in-out infinite;
+}
+.lamps i:nth-child(2) { animation-delay: .18s; }
+.lamps i:nth-child(3) { animation-delay: .36s; }
+@keyframes lamp {
+  0%, 68%, 100% { background: rgba(255, 255, 255, .3); box-shadow: none; }
+  22%           { background: #fff8dd; box-shadow: 0 0 12px rgba(255, 248, 221, .9); }
+}
+
+.cable {
+  position: absolute;
+  top: 6px; left: 50%;
+  width: 2px;
+  transform: translateX(-50%);
+  background: linear-gradient(rgba(255, 255, 255, .5), rgba(255, 255, 255, .32));
+  height: calc(12px + var(--p) * 132px);
+  transition: height .4s cubic-bezier(.3, 0, .2, 1);
+}
+.hang {
+  position: absolute;
+  top: 16px; left: 50%;
+  transform: translate(-50%, calc(var(--p) * 132px));
+  transition: transform .4s cubic-bezier(.3, 0, .2, 1);
+}
+.swing { transform-origin: 50% 0; animation: sway 3.1s ease-in-out infinite; }
+@keyframes sway {
+  0%, 100% { transform: rotate(-2.1deg); }
+  50%      { transform: rotate(2.1deg); }
+}
+.rig svg { display: block; width: 64px; height: 88px; overflow: visible; }
+
+.shaft, .hub { fill: rgba(255, 255, 255, .82); }
+.prong {
+  fill: none;
+  stroke: rgba(255, 255, 255, .82);
+  stroke-width: 3.4;
+  stroke-linecap: round;
+  transform-box: view-box;
+  transform-origin: 32px 24px;
+  transition: transform .34s cubic-bezier(.3, 0, .2, 1);
+}
+.prize {
+  fill: #fff3c4;
+  opacity: 0;
+  transform-box: view-box;
+  transform-origin: 32px 66px;
+  transform: scale(.2);
+  transition: opacity .2s ease, transform .34s cubic-bezier(.2, .9, .3, 1.2);
+}
+#loader.grab .prong.l { transform: rotate(15deg); }
+#loader.grab .prong.r { transform: rotate(-15deg); }
+#loader.grab .prong.m { transform: scaleY(.94); }
+#loader.grab .prize   { opacity: 1; transform: scale(1); }
+#loader.grab .swing   { animation: none; transform: rotate(0deg); transition: transform .3s ease; }
+#loader.lift .hang    { transform: translate(-50%, -4px); transition: transform .52s cubic-bezier(.35, 0, .2, 1); }
+#loader.lift .cable   { height: 12px; transition: height .52s cubic-bezier(.35, 0, .2, 1); }
+
+.read { display: flex; align-items: center; gap: 16px; margin-top: 30px; }
+#bar { width: min(220px, 46vw); height: 2px; background: rgba(255, 255, 255, .3); }
+#bar::after {
+  content: "";
+  display: block;
+  height: 100%;
+  background: #fff;
+  transform: scaleX(var(--p));
+  transform-origin: left;
+  transition: transform .3s ease;
+}
+#pct {
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: .14em;
+  font-weight: 500;
+  color: rgba(255, 255, 255, .92);
+  font-variant-numeric: tabular-nums;
+  min-width: 4ch;
+}
+.cap {
+  margin-top: 20px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, .92);
+  text-align: center;
+  padding: 0 16px;
+}
+.cap i { font-style: normal; opacity: .5; margin: 0 4px; }
+.sub {
+  margin-top: 9px;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, .6);
+}
+.sub b { font-weight: 500; color: rgba(255, 255, 255, .78); font-variant-numeric: tabular-nums; }
+
+/* ---- turn your phone -------------------------------------------------------
+   The frame is 16:9 with an interface drawn into its corners. Letterboxed into
+   a portrait phone it is a stamp, and no layout of ours can fix that — the only
+   honest answer is to ask for the other orientation. */
+.turn { display: none; }
+
+@media (orientation: portrait) and (max-width: 900px) {
+  .turn {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    padding: 11px 18px 11px 14px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, .1);
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, .22), 0 10px 26px rgba(70, 38, 0, .22);
+  }
+  #loader .turn { margin-top: 30px; }
+
+  .turn .ph {
+    width: 26px; height: 26px;
+    flex: none;
+    fill: none;
+    stroke: rgba(255, 255, 255, .9);
+    stroke-width: 2.4;
+    stroke-linecap: round;
+    transform-origin: 50% 50%;
+    animation: turn-phone 2.8s ease-in-out infinite;
+  }
+  .turn .ph circle { fill: rgba(255, 255, 255, .9); stroke: none; }
+  @keyframes turn-phone {
+    0%, 16%   { transform: rotate(0deg); }
+    42%, 74%  { transform: rotate(-90deg); }
+    96%, 100% { transform: rotate(0deg); }
+  }
+
+  .turn span {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    white-space: nowrap;
+    font-size: 11.5px;
+    font-weight: 700;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, .95);
+    line-height: 1.1;
+  }
+  .turn span i {
+    font-style: normal;
+    font-family: var(--mono);
+    font-size: 9px;
+    font-weight: 400;
+    letter-spacing: .1em;
+    color: rgba(255, 255, 255, .62);
+  }
+
+  #rotate {
+    position: fixed;
+    left: 50%;
+    bottom: 18%;
+    z-index: 8;
+    transform: translateX(-50%) translateY(12px);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity .4s ease, transform .5s cubic-bezier(.18, .78, .28, 1), visibility 0s linear .5s;
+  }
+  #rotate.on {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(-50%) translateY(0);
+    transition: opacity .4s ease, transform .5s cubic-bezier(.18, .78, .28, 1), visibility 0s;
+  }
+  #rotate { pointer-events: auto; cursor: pointer; }
+  #rotate .turn {
+    background: rgba(46, 26, 0, .36);
+    backdrop-filter: blur(12px) saturate(1.2);
+    -webkit-backdrop-filter: blur(12px) saturate(1.2);
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, .26), 0 14px 34px rgba(50, 26, 0, .3);
+  }
+
+  .rig { width: 150px; height: 200px; }
+  .cap { font-size: 10px; letter-spacing: .1em; }
+  .sub { font-size: 9px; }
+  #wait { bottom: 11%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .swing, .lamps i { animation: none; }
+  .turn .ph { animation: none; transform: rotate(-90deg); }
+}

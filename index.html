@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en" class="loading">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Daniel Halper — product engineer, Los Angeles</title>
+<meta name="description" content="Daniel Halper designs and builds AI products end to end. Co-founder and Head of Product &amp; Tech at Step Up Tutoring. Eleven projects, from Sidekick to That Feeling When.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<main id="stage">
+  <!-- The take carries its own interface: the HUD, the cards and the tick row
+       are rendered into the footage. So the frame is never cropped — it is
+       letterboxed into #frame, and everything clickable is a transparent
+       anchor laid over the pixels it belongs to. -->
+  <div id="frame">
+    <video id="plate" muted playsinline preload="auto" poster="poster.jpg"></video>
+    <div id="hits"></div>
+  </div>
+
+  <p id="wait" aria-hidden="true">Buffering</p>
+
+  <div id="rotate">
+    <div class="turn">
+      <svg class="ph" viewBox="0 0 60 60" aria-hidden="true">
+        <rect x="20" y="5" width="20" height="40" rx="4"/>
+        <line x1="26" y1="10" x2="34" y2="10"/>
+        <circle cx="30" cy="40" r="1.7"/>
+      </svg>
+      <span>Turn your phone <i>the take runs wide</i></span>
+    </div>
+  </div>
+</main>
+
+<div id="loader">
+  <div class="rig">
+    <span class="rail"></span>
+    <span class="lamps"><i></i><i></i><i></i></span>
+    <span class="cable"></span>
+    <div class="hang">
+      <div class="swing">
+        <svg viewBox="0 0 64 88" aria-hidden="true">
+          <rect class="shaft" x="28" y="0" width="8" height="15" rx="3"/>
+          <rect class="hub" x="19" y="13" width="26" height="11" rx="5"/>
+          <path class="prong l" d="M25 24 C 19 40, 13 54, 11 70"/>
+          <path class="prong m" d="M32 24 C 32 42, 32 56, 32 72"/>
+          <path class="prong r" d="M39 24 C 45 40, 51 54, 53 70"/>
+          <circle class="prize" cx="32" cy="66" r="8.5"/>
+        </svg>
+      </div>
+    </div>
+  </div>
+
+  <div class="read">
+    <div id="bar"></div>
+    <span id="pct">0%</span>
+  </div>
+  <p class="cap">Daniel Halper <i>&middot;</i> Product engineer <i>&middot;</i> Los Angeles</p>
+  <p class="sub">dhalps.com <b id="buf"></b></p>
+
+  <div class="turn">
+    <svg class="ph" viewBox="0 0 60 60" aria-hidden="true">
+      <rect x="20" y="5" width="20" height="40" rx="4"/>
+      <line x1="26" y1="10" x2="34" y2="10"/>
+      <circle cx="30" cy="40" r="1.7"/>
+    </svg>
+    <span>Turn your phone <i>the take runs wide</i></span>
+  </div>
+</div>
+
+<!-- The words are in the footage, so they are repeated here for anything that
+     reads rather than looks: search engines, screen readers, link previews. -->
+<div class="sr">
+  <h1>Daniel Halper — product engineer, Los Angeles</h1>
+  <p>I design and build AI products, end to end. Co-founder, Head of Product &amp; Tech at Step Up Tutoring. Stanford Product Design · Hack Reactor, top of cohort. 300,000+ tutoring hours, 200,000+ automations a month, 6,000+ tutors and families.</p>
+  <ol>
+    <li><h2>01 — Sidekick</h2><p>Co-founder · Head of Product &amp; Tech. A master teacher in every session: each recording becomes a one-minute briefing. Gates + CZI funded. Claude agents, LLM pipelines, knowledge graph. <a href="https://sidekick.stepuptutoring.org">Full case study</a></p></li>
+    <li><h2>02 — The Efficiency Engine</h2><p>Co-founder · Head of Product &amp; Tech. Six years automating a 20-person org, from Zapier to AI agents, and deciding what to leave to people. 143K+ automations every month. Claude agents, Zapier, Airtable, Cloud Run.</p></li>
+    <li><h2>03 — Jimmy AI</h2><p>Built solo. Finds businesses with bad websites, rebuilds each site, and sends it to the owner to claim. 250+ generated · 2 live. TypeScript, Gemini, Claude Code. <a href="https://www.quickresponse-plumbing.com/">See a live one</a></p></li>
+    <li><h2>04 — Neat Freak</h2><p>Built solo. Tidies your tabs into workstream folders, and finds any tab again in plain English. Live on the Chrome Web Store. Chrome MV3, LLM search, local-first. <a href="https://chromewebstore.google.com/detail/neat-freak/gmojchpnnkacfighmaoiofkddbaohpan">Install it</a></p></li>
+    <li><h2>05 — Kyron Learning</h2><p>Founding UX engineer. AI video lessons students talk back to. The CEO recruited him off his Step Up work. $13.5M Series A. UX engineering, prototyping, user testing. <a href="https://app.kyronlearning.com">See the platform</a></p></li>
+    <li><h2>06 — Hero Chat</h2><p>AI chatbots that answer questions and let you explore other people's anonymous conversations. 500+ reviews, shipped to the App Store.</p></li>
+    <li><h2>07 — MatchMate</h2><p>Intelligent matching that pairs students with the right tutors at scale. 1,000s of matches automated.</p></li>
+    <li><h2>08 — Swayzee</h2><p>A social game with daily challenges where players persuade AI personas by pitching and negotiating. In development now.</p></li>
+    <li><h2>09 — Step Up Portals</h2><p>Guided tutor onboarding, from application through background check to first match, plus the tutors' home base. ~600 applicants a week.</p></li>
+    <li><h2>10 — Troops</h2><p>A campus delivery service app for college students, by college students. YC interview.</p></li>
+    <li><h2>11 — That Feeling When</h2><p>A party card game about relatable moments, plus its online multiplayer version. Shipped, physical and digital.</p></li>
+  </ol>
+  <p>Get in touch. Email is fastest.
+    <a href="mailto:danihalp@me.com">danihalp@me.com</a>
+    <a href="https://linkedin.com/in/daniel-halper">linkedin/daniel-halper</a>
+    <a href="https://github.com/danielhalper">github/danielhalper</a>
+  </p>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>

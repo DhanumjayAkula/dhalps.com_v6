@@ -1,0 +1,7 @@
+# the camera master: 59MB, and nothing on the site loads it — video.mp4 is the
+# web encode derived from it. Keep it out of the repo so a clone is one video,
+# not two.
+Ritz.mp4
+
+.DS_Store
+Thumbs.db
