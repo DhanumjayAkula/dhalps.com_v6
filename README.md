@@ -11,12 +11,15 @@ The take carries its own interface. The HUD, the eleven project cards, the
 footage, not drawn in HTML. Three things follow from that:
 
 - **The frame is never cropped.** Crop a pixel and you cut somebody's button in
-  half, so the 16:9 frame is letterboxed whole and the bands are painted the
-  take's own ground colour (`#d79e00`, sampled off the floor in the footage).
+  half, so the 16:9 frame is letterboxed whole. The bands either side are not a
+  flat colour: each is the take's own outermost few pixels, drawn to a canvas one
+  pixel wide and stretched to fill the band, repainted on every frame the video
+  presents. The picture's edge simply carries on to the edge of the screen.
 - **What is clickable is a transparent anchor** laid over the pixels that are
   supposed to be pressed — the two pills in the HUD, the button on each card,
   the links on the closing panel, and all eleven numbers in the tick row (tap a
-  number and the take runs to the beat where that project is on screen). They
+  number and the page cuts straight to that project's beat, with a short
+  crossfade — nothing in between is played, forwards or back). They
   are placed in the footage's own 1920×1080 coordinates, written as percentages,
   so they track the picture at any size. Only the ones on the current beat are
   live; they show a ring on hover and keyboard focus.
@@ -26,26 +29,36 @@ footage, not drawn in HTML. Three things follow from that:
 
 ## The beats
 
-Eleven marks, nine scrolls. The first one is not scrolled to — the take opens
+Eight marks, six scrolls. The first one is not scrolled to — the take opens
 itself, playing 0 → 8s the moment the loader lifts, so the page arrives already
-in motion. A scroll during the opening is not swallowed; it carries straight on.
+in motion.
 
-    0 → 8*   19   24   35   41   63   75   87   96   105
+    0 → 8*   19   35   63   75   87   105
     * played automatically
 
-`105` opens on a cut: `from: 97`. The second between 96 and 97 is footage where
-nothing moves, and holding on it reads as the page having frozen, so the beat
-jumps the gap in both directions. The marks live in `BEATS` at the top of
-`app.js`, in seconds; the first cut is kept in `backup/` with a note on how it
-differed.
+The run from 87 to 105 steps over 96–97 (`SKIPS`), a second where nothing moves
+that reads as the page freezing mid-run; the rewind steps back over it too. The
+marks live in `BEATS` at the top of `app.js`, in seconds; the two earlier
+timing sets are kept in `backup/` with notes on how they differed.
+
+**One gesture, one beat.** A trackpad swipe keeps firing wheel events for a
+second or two after the finger lifts. A gesture is the whole stream up to the
+first 240ms pause (`GAP`), and it moves the take exactly one beat however hard
+it was. A held arrow key counts once.
+
+**The scroll cue.** When the take has parked and nobody has moved for 1.4s, a
+small pill rises just above the footage's own SCROLL label — a mouse with its
+wheel rolling, or "Swipe up" with climbing chevrons on touch screens. It goes
+the instant anyone does anything, and never shows on the last beat.
 
 ## The video
 
-`video.mp4` — 1920×1080, 30fps, 105.4s, no audio, 55MB. Re-encoded from the
-master with a keyframe every second (`-g 30`): the master carried 19 keyframes
-in the whole take, which makes a rewind crawl. 30fps is also why the transport
-runs at `RATE 2` — 30 × 2 presents 60 frames a second, one per refresh on a 60Hz
-screen. An uneven multiple is what reads as judder.
+`video.mp4` — 1920×1080, 30fps, 105.4s, no audio, 21.9MB. Re-encoded from
+`Ritz_1.mp4` with a keyframe every two seconds (`-g 60 -crf 25`, SSIM 0.992 to
+the source): the source carried 12 keyframes in the whole take, which makes a
+rewind or a tick-jump crawl. Playback runs at `RATE 1.5` — 45 frames a second,
+which does not divide 60Hz evenly, so there is a faint judder; that is the trade
+for the slower pace.
 
 It is **downloaded whole before the page opens**, then handed to the `<video>`
 as a blob. An earlier cut streamed it and opened sooner, but a beat could outrun

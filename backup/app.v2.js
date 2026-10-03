@@ -11,24 +11,28 @@
 
    The beats are the still holds in the footage, measured off the frames: the
    camera moves, then the picture settles, and the settle is where a scroll
-   parks. 105.4s at 30fps, seven marks after the opening, six scrolls. */
+   parks. 105.4s at 30fps, 18 marks, 17 scrolls. */
 
 const BEATS = [
   { t:   0.00, cue: 'the machine, far off' },
   { t:   8.00, cue: 'framed' },
   { t:  19.00, cue: 'Sidekick',                                    acts: 1 },
+  /* 24.5, not 24.0: the figure clears the right edge of frame at almost exactly
+     24.0, so a park on the round number catches a sliver of him hanging off the
+     side. He is gone by 24.2; the hold runs to 25.7, so half a second of slack
+     costs nothing. */
+  { t:  24.50, cue: 'the card goes, and so does he' },
   { t:  35.00, cue: 'The Efficiency Engine',                       acts: 1 },
+  { t:  41.00, cue: 'the tray empties' },
   { t:  63.00, cue: 'round one: Jimmy AI, Neat Freak, Kyron',      acts: 3 },
   { t:  75.00, cue: 'round two: Hero Chat, MatchMate, Swayzee',    acts: 3 },
   { t:  87.00, cue: 'round three: Portals, Troops, That Feeling',  acts: 3 },
-  { t: 105.00, cue: 'Daniel Halper',                               acts: 3 },
+  { t:  96.00, cue: 'all eleven, collected' },
+  /* `from` is a cut, not a mark: 96–97 is a second of footage where nothing
+     moves, and holding on it reads as the page having frozen. Running into this
+     beat jumps the gap and plays from 97. */
+  { t: 105.00, cue: 'Daniel Halper', from: 97.00,                  acts: 3 },
 ];
-
-/* Stretches of the take the transport steps over, in either direction. 96–97 is
-   a second where nothing moves at all; it is no longer a stop, but played
-   through it still reads as the page having frozen mid-run, so the run jumps it
-   (and the rewind jumps it back). */
-const SKIPS = [[96.00, 97.00]];
 
 /* The take opens on its own: the page does not wait for a scroll to show the
    machine arriving, it plays beat 0 -> 1 the moment the loader lifts. A scroll
@@ -52,35 +56,34 @@ const HITS = [
   { beat: 2,  x: 1586, y: 872, w: 256, h: 56, label: 'Sidekick — full case study',
     href: 'https://sidekick.stepuptutoring.org' },
 
-  { beat: 3,  x: 1580, y: 538, w: 254, h: 54, label: 'The Efficiency Engine — full case study',
+  { beat: 4,  x: 1580, y: 538, w: 254, h: 54, label: 'The Efficiency Engine — full case study',
     href: 'https://dhalps.com/' },
 
-  { beat: 4,  x: 1590, y: 320, w: 245, h: 52, label: 'Jimmy AI — see a live one',
+  { beat: 6,  x: 1590, y: 320, w: 245, h: 52, label: 'Jimmy AI — see a live one',
     href: 'https://www.quickresponse-plumbing.com/' },
-  { beat: 4,  x: 1590, y: 588, w: 245, h: 52, label: 'Neat Freak — install it',
+  { beat: 6,  x: 1590, y: 588, w: 245, h: 52, label: 'Neat Freak — install it',
     href: 'https://chromewebstore.google.com/detail/neat-freak/gmojchpnnkacfighmaoiofkddbaohpan' },
-  { beat: 4,  x: 1583, y: 856, w: 252, h: 52, label: 'Kyron Learning — see the platform',
+  { beat: 6,  x: 1583, y: 856, w: 252, h: 52, label: 'Kyron Learning — see the platform',
     href: 'https://app.kyronlearning.com' },
 
-  { beat: 5,  x: 1590, y: 320, w: 245, h: 52, label: 'Hero Chat — full case study', href: 'https://dhalps.com/' },
-  { beat: 5,  x: 1590, y: 588, w: 245, h: 52, label: 'MatchMate — full case study', href: 'https://dhalps.com/' },
-  { beat: 5,  x: 1590, y: 856, w: 245, h: 52, label: 'Swayzee — full case study',   href: 'https://dhalps.com/' },
+  { beat: 7,  x: 1590, y: 320, w: 245, h: 52, label: 'Hero Chat — full case study', href: 'https://dhalps.com/' },
+  { beat: 7,  x: 1590, y: 588, w: 245, h: 52, label: 'MatchMate — full case study', href: 'https://dhalps.com/' },
+  { beat: 7,  x: 1590, y: 856, w: 245, h: 52, label: 'Swayzee — full case study',   href: 'https://dhalps.com/' },
 
-  { beat: 6,  x: 1590, y: 320, w: 245, h: 52, label: 'Step Up Portals — full case study',   href: 'https://dhalps.com/' },
-  { beat: 6,  x: 1590, y: 588, w: 245, h: 52, label: 'Troops — full case study',            href: 'https://dhalps.com/' },
-  { beat: 6,  x: 1590, y: 856, w: 245, h: 52, label: 'That Feeling When — full case study', href: 'https://dhalps.com/' },
+  { beat: 8,  x: 1590, y: 320, w: 245, h: 52, label: 'Step Up Portals — full case study',   href: 'https://dhalps.com/' },
+  { beat: 8,  x: 1590, y: 588, w: 245, h: 52, label: 'Troops — full case study',            href: 'https://dhalps.com/' },
+  { beat: 8,  x: 1590, y: 856, w: 245, h: 52, label: 'That Feeling When — full case study', href: 'https://dhalps.com/' },
 
-  { beat: 7,  x:  992, y: 882, w: 254, h: 50, label: 'Email danihalp@me.com', href: 'mailto:danihalp@me.com' },
-  { beat: 7,  x: 1263, y: 884, w: 273, h: 47, label: 'LinkedIn',             href: 'https://linkedin.com/in/daniel-halper' },
-  { beat: 7,  x: 1552, y: 884, w: 250, h: 47, label: 'GitHub',               href: 'https://github.com/danielhalper' },
+  { beat: 10, x:  992, y: 882, w: 254, h: 50, label: 'Email danihalp@me.com', href: 'mailto:danihalp@me.com' },
+  { beat: 10, x: 1263, y: 884, w: 273, h: 47, label: 'LinkedIn',             href: 'https://linkedin.com/in/daniel-halper' },
+  { beat: 10, x: 1552, y: 884, w: 250, h: 47, label: 'GitHub',               href: 'https://github.com/danielhalper' },
 ];
 
 /* The eleven boxes along the bottom are in the footage too. They are a map, so
-   they are wired as one: tapping a number goes straight to the beat where that
-   project is on screen — a cut with a short crossfade, not a run through every
-   beat in between. */
+   they are wired as one: tapping a number runs the take to the beat where that
+   project is on screen. */
 const TICK = { x: 745, y: 1006, w: 31, h: 30, step: 40 };
-const TICK_BEAT = [2, 3, 4, 4, 4, 5, 5, 5, 6, 6, 6];
+const TICK_BEAT = [2, 4, 6, 6, 6, 7, 7, 7, 8, 8, 8];
 
 const EPS    = 0.03;   // seconds; closer than this counts as parked
 const RATE   = 1.5;    /* What the number does to the picture: the take is 30fps,
@@ -94,20 +97,11 @@ const RATE   = 1.5;    /* What the number does to the picture: the take is 30fps
                           do divide it evenly; 60 and 120 do not.) */
 const REWIND = 1.6 * RATE;
 const NUDGE  = 26;     // wheel delta that counts as one gesture
-const GAP    = 240;    /* ms of wheel silence that ends a gesture. A trackpad
-                          swipe keeps sending wheel events long after the finger
-                          lifts — the momentum tail, every ~16ms, fading out over
-                          a second or two — and a hard swipe used to spend that
-                          tail on the next beat, and the next. Now a gesture is
-                          the whole stream up to the first real pause, and it
-                          moves the take one beat however hard it was. */
+const SETTLE = 120;    // ms of quiet before the next gesture is taken
 
 const plate = document.getElementById('plate');
 const hits  = document.getElementById('hits');
 const waitEl = document.getElementById('wait');
-const frame = document.getElementById('frame');
-const stage = document.getElementById('stage');
-const cueEl = document.getElementById('cue');
 
 const clamp = (v, a, b) => (v < a ? a : v > b ? b : v);
 
@@ -187,62 +181,14 @@ function go(dir) {
   drive();
 }
 
-/* A tick is a map, not a scroll: it goes straight to that project's beat.
-   The current picture is held on a canvas over the video, the video seeks
-   underneath it, and once the new frame is up the held one fades away. Nothing
-   in between is played, forwards or back. */
-const fade = document.createElement('canvas');
-fade.id = 'xfade';
-plate.after(fade);
-let cutting = 0;
-
 function jump(n) {
-  n = clamp(n, 0, BEATS.length - 1);
-  if (!revealed || cutting || (n === beat && !busy)) return;
-  stop();
-  plate.pause();
-  hideCue();
-
-  const w = 960, h = 540;
-  if (fade.width !== w) { fade.width = w; fade.height = h; }
-  try { fade.getContext('2d').drawImage(plate, 0, 0, w, h); } catch (_) {}
-  fade.classList.remove('out');
-  fade.classList.add('on');
-
-  beat = n;
-  busy = true;
-  const id = ++cutting;
-  const done = () => {
-    if (cutting !== id) return;
-    cutting = 0;
-    park();
-    paint();
-    requestAnimationFrame(() => fade.classList.add('out'));
-  };
-  plate.addEventListener('seeked', () => afterFrame(done), { once: true });
-  setTimeout(done, 900);              // never strand the page behind the still
-  plate.currentTime = BEATS[n].t;
-}
-
-// once the frame for the current position is actually on screen
-function afterFrame(fn) {
-  if (plate.requestVideoFrameCallback) {
-    let ran = false;
-    const go = () => { if (!ran) { ran = true; fn(); } };
-    plate.requestVideoFrameCallback(go);
-    setTimeout(go, 120);              // a paused element may not present again
-  } else requestAnimationFrame(() => requestAnimationFrame(fn));
-}
-
-// a position inside a skipped stretch, moved to the side we are heading for
-function overSkip(t, dir) {
-  for (const [a, b] of SKIPS) if (t > a + EPS && t < b - EPS) return dir > 0 ? b : a;
-  return t;
+  if (busy || !revealed || n === beat) return;
+  beat = clamp(n, 0, BEATS.length - 1);
+  drive();
 }
 
 function drive() {
   stop();
-  hideCue();
   const target = BEATS[beat].t;
   const gap = target - plate.currentTime;
 
@@ -250,14 +196,14 @@ function drive() {
   busy = true;
 
   if (gap > 0) {
+    // a beat may open on a cut: skip the dead patch before rolling
+    const from = BEATS[beat].from;
+    if (from !== undefined && plate.currentTime < from - EPS) plate.currentTime = from;
+
     plate.playbackRate = RATE;      // some browsers reset the rate on a source change
     plate.play().catch(() => {});   // forward is real playback, so it never judders
     const fwd = () => {
-      const now = plate.currentTime;
-      if (now >= target - EPS) return park();
-      for (const [a, b] of SKIPS) {
-        if (now >= a - EPS && now < b - EPS && b <= target) { plate.currentTime = b; break; }
-      }
+      if (plate.currentTime >= target - EPS) return park();
       raf = requestAnimationFrame(fwd);
     };
     raf = requestAnimationFrame(fwd);
@@ -274,8 +220,10 @@ function drive() {
       const now = performance.now();
       const step = Math.min((now - last) / 1000, 1 / 20) * REWIND;
       last = now;
+      let t = plate.currentTime - step;
       // the gap the forward run jumped is not worth crawling back through
-      let t = overSkip(plate.currentTime - step, -1);
+      const cut = BEATS[beat + 1] && BEATS[beat + 1].from;
+      if (cut !== undefined && t <= cut) t = target;
       if (t <= target + EPS) return park();
       seekBack = back;
       plate.addEventListener('seeked', back, { once: true });
@@ -295,28 +243,24 @@ function park() {
   if (Math.abs(plate.currentTime - BEATS[beat].t) > EPS) plate.currentTime = BEATS[beat].t;
   busy = false;
   arm(beat);
-  paint();
-  scheduleCue();
 }
 
 // ---- gestures ---------------------------------------------------------------
 
-let acc = 0, quiet = 0, spent = false;
+let acc = 0, quiet = 0;
 
 function intent(d) {
-  hideCue();
-  if (!revealed || cutting) return;
-  if (busy) { beat = clamp(beat + d, 0, BEATS.length - 1); drive(); return; }  // a new gesture mid-run chains on
+  if (!revealed) return;
+  if (busy) { beat = clamp(beat + d, 0, BEATS.length - 1); drive(); return; }  // chain, don't ignore
   go(d);
 }
 
 addEventListener('wheel', e => {
   e.preventDefault();
   clearTimeout(quiet);
-  quiet = setTimeout(() => { acc = 0; spent = false; }, GAP);
-  if (spent) return;                  // this gesture has had its beat; the rest is momentum
-  acc += e.deltaY * (e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? innerHeight : 1);
-  if (Math.abs(acc) >= NUDGE) { spent = true; const d = Math.sign(acc); acc = 0; intent(d); }
+  quiet = setTimeout(() => { acc = 0; }, SETTLE);   // leftover momentum is not a new gesture
+  acc += e.deltaY;
+  if (Math.abs(acc) >= NUDGE) { const d = Math.sign(acc); acc = 0; intent(d); }
 }, { passive: false });
 
 addEventListener('keydown', e => {
@@ -324,7 +268,6 @@ addEventListener('keydown', e => {
   if (d === undefined) return;
   if (e.target.closest('a')) return;      // let a target take Enter/Space
   e.preventDefault();
-  if (e.repeat) return;                    // a held key is one press, like a swipe
   intent(d);
 });
 
@@ -336,100 +279,6 @@ addEventListener('touchmove', e => {
   if (Math.abs(dy) > 40) { touchY = null; intent(Math.sign(dy)); }
 }, { passive: true });
 addEventListener('touchend', () => { touchY = null; });
-
-// ---- the bands either side ---------------------------------------------------
-/* A screen wider (or taller) than 16:9 leaves bands round the frame. A flat
-   colour never matched: the take's floor shifts from amber to deep orange
-   between beats and darkens toward its corners, so any one paint was wrong
-   somewhere. Instead each band is the take's own outermost few pixels, carried
-   outwards — a canvas one pixel across and a few dozen tall, drawn from the
-   frame's edge column and stretched by the browser to fill the band. The edge
-   of the picture simply continues to the edge of the screen, and it follows the
-   footage frame by frame. */
-const STRIP = 6;          // source pixels averaged at each edge
-const BANDS = ['l', 'r', 't', 'b'].map(k => {
-  const c = document.createElement('canvas');
-  c.className = `band ${k}`;
-  c.width  = k === 'l' || k === 'r' ? 1 : 48;
-  c.height = k === 'l' || k === 'r' ? 32 : 1;
-  stage.prepend(c);
-  const ctx = c.getContext('2d', { alpha: false });
-  ctx.imageSmoothingEnabled = true;
-  ctx.imageSmoothingQuality = 'high';
-  return { k, c, ctx, on: false };
-});
-
-function place() {
-  const r = frame.getBoundingClientRect();
-  const W = innerWidth, H = innerHeight;
-  const off = upright.matches;        // upright phones keep the preview card
-  const px = v => `${Math.round(v)}px`;
-  for (const b of BANDS) {
-    const s = b.c.style;
-    if (b.k === 'l') { b.on = r.left > 1;      Object.assign(s, { left: '0', top: px(r.top), width: px(r.left + 1), height: px(r.height) }); }
-    if (b.k === 'r') { b.on = W - r.right > 1; Object.assign(s, { left: px(r.right - 1), top: px(r.top), width: px(W - r.right + 1), height: px(r.height) }); }
-    if (b.k === 't') { b.on = r.top > 1;       Object.assign(s, { left: px(r.left), top: '0', width: px(r.width), height: px(r.top + 1) }); }
-    if (b.k === 'b') { b.on = H - r.bottom > 1; Object.assign(s, { left: px(r.left), top: px(r.bottom - 1), width: px(r.width), height: px(H - r.bottom + 1) }); }
-    if (off) b.on = false;
-    b.c.classList.toggle('on', b.on);
-  }
-  paint();
-}
-
-function paint() {
-  const vw = plate.videoWidth, vh = plate.videoHeight;
-  if (!vw || plate.readyState < 2) return;
-  for (const b of BANDS) {
-    if (!b.on) continue;
-    const { ctx, c } = b;
-    try {
-      if (b.k === 'l') ctx.drawImage(plate, 0, 0, STRIP, vh, 0, 0, 1, c.height);
-      if (b.k === 'r') ctx.drawImage(plate, vw - STRIP, 0, STRIP, vh, 0, 0, 1, c.height);
-      if (b.k === 't') ctx.drawImage(plate, 0, 0, vw, STRIP, 0, 0, c.width, 1);
-      if (b.k === 'b') ctx.drawImage(plate, 0, vh - STRIP, vw, STRIP, 0, 0, c.width, 1);
-    } catch (_) { /* a frame not ready yet: the flat ground shows for a moment */ }
-  }
-}
-
-// repaint on every frame the video presents, and nowhere else
-if (plate.requestVideoFrameCallback) {
-  const each = () => { paint(); plate.requestVideoFrameCallback(each); };
-  plate.requestVideoFrameCallback(each);
-} else {
-  let loop = 0;
-  const tick = () => { paint(); if (!plate.paused) loop = requestAnimationFrame(tick); };
-  plate.addEventListener('play', () => { cancelAnimationFrame(loop); loop = requestAnimationFrame(tick); });
-  plate.addEventListener('seeked', paint);
-}
-plate.addEventListener('loadeddata', place);
-addEventListener('resize', place);
-
-// ---- the scroll cue -------------------------------------------------------------
-/* The footage says SCROLL in small type in its corner, which is easy to miss.
-   So when the take has parked and nobody has moved for a moment, a small cue
-   rises just above that word — a mouse with its wheel turning, or on a touch
-   screen two chevrons climbing — and it goes the instant anyone does anything.
-   Never on the last beat: there is nothing further to scroll to. */
-const IDLE = 1400;
-const touchy = matchMedia('(hover: none) and (pointer: coarse)');
-let cueWait = 0;
-
-function setCueMode() {
-  cueEl.classList.toggle('touch', touchy.matches);
-  cueEl.querySelector('b').textContent = touchy.matches ? 'Swipe up' : 'Scroll';
-}
-setCueMode();
-touchy.addEventListener('change', setCueMode);
-
-function scheduleCue() {
-  clearTimeout(cueWait);
-  if (!revealed || beat >= BEATS.length - 1) return;
-  cueWait = setTimeout(() => { if (!busy && !cutting) cueEl.classList.add('on'); }, IDLE);
-}
-function hideCue() {
-  clearTimeout(cueWait);
-  cueEl.classList.remove('on');
-}
 
 // ---- turn your phone ---------------------------------------------------------
 
@@ -454,7 +303,6 @@ rotateTip.addEventListener('click', () => {
 upright.addEventListener('change', e => {
   clearTimeout(turnOff);
   if (e.matches) hintTurn(); else rotateTip.classList.remove('on');
-  place();
 });
 
 // ---- loader ------------------------------------------------------------------
@@ -552,9 +400,10 @@ if (location.hash === '#selftest') {
   });
   if (TICK_BEAT.length !== 11) fails.push('the tick row is not eleven');
   if (!BEATS[INTRO]) fails.push('the intro beat does not exist');
-  SKIPS.forEach(([a, b], i) => {
-    if (b <= a) fails.push(`skip ${i} does not run forward`);
-    if (BEATS.some(m => m.t > a + EPS && m.t < b - EPS)) fails.push(`skip ${i} swallows a beat`);
+  BEATS.forEach((b, i) => {
+    if (b.from === undefined) return;
+    if (b.from >= b.t) fails.push(`beat ${i} cuts to ${b.from}s, which is not before its mark`);
+    if (i && b.from <= BEATS[i - 1].t) fails.push(`beat ${i} cuts back behind beat ${i - 1}`);
   });
   TICK_BEAT.forEach((b, i) => { if (!BEATS[b]) fails.push(`tick ${i} points at no beat`); });
   plate.addEventListener('loadedmetadata', () => {

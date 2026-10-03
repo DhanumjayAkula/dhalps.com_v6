@@ -23,3 +23,23 @@ Cards were up at 15.00 (01), 31.20 (02), 58.20 (03–05), 70.80 (06–08),
 83.40 (09–11) and 100.60 (the closing panel).
 
 To restore: copy these three files back over the ones in the folder above.
+
+---
+
+# v2 — ten marks, then trimmed to seven
+
+`app.v2.js`, `index.v2.html` and `style.v2.css` are the files as they stood
+before the third timing pass.
+
+What v2 did differently:
+
+- **Ten scrolls:** `8 → 19 → 24.5 → 35 → 41 → 63 → 75 → 87 → 96 → 105`, with a
+  cut over the still second 96–97 on the way into the last beat.
+- **Ticks rewound.** Tapping a number in the tick row ran the take there —
+  backwards through every beat in between if it was behind you.
+- **Plain bands.** Wider-than-16:9 screens showed the flat `--ground` colour
+  either side of the frame.
+- **Trackpad momentum chained.** A hard swipe could carry through more than one
+  beat.
+
+To restore: copy these three files back over the ones in the folder above.
