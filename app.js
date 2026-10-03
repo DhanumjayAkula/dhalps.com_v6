@@ -82,9 +82,15 @@ const TICK = { x: 745, y: 1006, w: 31, h: 30, step: 40 };
 const TICK_BEAT = [2, 4, 6, 6, 6, 7, 7, 7, 8, 8, 8];
 
 const EPS    = 0.03;   // seconds; closer than this counts as parked
-const RATE   = 2;      /* the take is 30fps, so 2x presents 60 frames a second:
-                          one per refresh on a 60Hz screen, two on a 120Hz one.
-                          An uneven multiple is what reads as judder. */
+const RATE   = 1.5;    /* What the number does to the picture: the take is 30fps,
+                          so the browser presents 30 x RATE frames a second. On a
+                          60Hz screen that is even only when 30 x RATE divides 60
+                          — RATE 2 gives exactly 60fps, one new frame per refresh,
+                          and 1 gives 30. At 1.5 it is 45fps, which does not
+                          divide, so frames are held for two refreshes and then
+                          one and the motion carries a faint judder. That is the
+                          trade for the slower, more readable pace. (90Hz panels
+                          do divide it evenly; 60 and 120 do not.) */
 const REWIND = 1.6 * RATE;
 const NUDGE  = 26;     // wheel delta that counts as one gesture
 const SETTLE = 120;    // ms of quiet before the next gesture is taken
