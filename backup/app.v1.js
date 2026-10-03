@@ -15,25 +15,24 @@
 
 const BEATS = [
   { t:   0.00, cue: 'the machine, far off' },
-  { t:   8.00, cue: 'framed' },
-  { t:  19.00, cue: 'Sidekick',                                    acts: 1 },
-  { t:  24.00, cue: 'the card goes' },
-  { t:  35.00, cue: 'The Efficiency Engine',                       acts: 1 },
-  { t:  41.00, cue: 'the tray empties' },
-  { t:  63.00, cue: 'round one: Jimmy AI, Neat Freak, Kyron',      acts: 3 },
-  { t:  75.00, cue: 'round two: Hero Chat, MatchMate, Swayzee',    acts: 3 },
-  { t:  87.00, cue: 'round three: Portals, Troops, That Feeling',  acts: 3 },
-  { t:  96.00, cue: 'all eleven, collected' },
-  /* `from` is a cut, not a mark: 96–97 is a second of footage where nothing
-     moves, and holding on it reads as the page having frozen. Running into this
-     beat jumps the gap and plays from 97. */
-  { t: 105.00, cue: 'Daniel Halper', from: 97.00,                  acts: 3 },
+  { t:   7.07, cue: 'framed' },
+  { t:  10.67, cue: 'the first one walks out' },
+  { t:  15.00, cue: 'Sidekick',               cards: [1], acts: 1 },
+  { t:  20.03, cue: 'the card goes' },
+  { t:  24.00, cue: 'and so does he' },
+  { t:  26.27, cue: 'the second one is picked' },
+  { t:  27.97, cue: 'three more line up' },
+  { t:  31.20, cue: 'The Efficiency Engine',  cards: [2] },
+  { t:  36.20, cue: 'the card goes' },
+  { t:  39.97, cue: 'the tray empties' },
+  { t:  58.20, cue: 'round one: Jimmy AI, Neat Freak, Kyron', cards: [3, 4, 5], acts: 3 },
+  { t:  64.33, cue: 'the board clears' },
+  { t:  70.80, cue: 'round two: Hero Chat, MatchMate, Swayzee', cards: [6, 7, 8], acts: 3 },
+  { t:  76.50, cue: 'the board clears' },
+  { t:  83.40, cue: 'round three: Portals, Troops, That Feeling When', cards: [9, 10, 11], acts: 3 },
+  { t:  95.27, cue: 'all eleven, collected' },
+  { t: 100.60, cue: 'Daniel Halper', acts: 3 },
 ];
-
-/* The take opens on its own: the page does not wait for a scroll to show the
-   machine arriving, it plays beat 0 -> 1 the moment the loader lifts. A scroll
-   during it is not ignored — it carries straight on to the next beat. */
-const INTRO = 1;
 
 /* ---- what is clickable, in the footage's own coordinates --------------------
    Measured off 1920x1080 frames — the pill in the corner of the HUD, the button
@@ -49,37 +48,34 @@ const HITS = [
   { beat: '*', x: 1747, y:  17, w: 137, h: 43, label: 'Resume',
     href: 'https://dhalps.com/' },
 
-  { beat: 2,  x: 1586, y: 872, w: 256, h: 56, label: 'Sidekick — full case study',
+  { beat: 3,  x: 1586, y: 872, w: 256, h: 56, label: 'Sidekick — full case study',
     href: 'https://sidekick.stepuptutoring.org' },
 
-  { beat: 4,  x: 1580, y: 538, w: 254, h: 54, label: 'The Efficiency Engine — full case study',
-    href: 'https://dhalps.com/' },
-
-  { beat: 6,  x: 1590, y: 320, w: 245, h: 52, label: 'Jimmy AI — see a live one',
+  { beat: 11, x: 1596, y: 322, w: 236, h: 48, label: 'Jimmy AI — see a live one',
     href: 'https://www.quickresponse-plumbing.com/' },
-  { beat: 6,  x: 1590, y: 588, w: 245, h: 52, label: 'Neat Freak — install it',
+  { beat: 11, x: 1596, y: 590, w: 236, h: 48, label: 'Neat Freak — install it',
     href: 'https://chromewebstore.google.com/detail/neat-freak/gmojchpnnkacfighmaoiofkddbaohpan' },
-  { beat: 6,  x: 1583, y: 856, w: 252, h: 52, label: 'Kyron Learning — see the platform',
+  { beat: 11, x: 1590, y: 858, w: 250, h: 48, label: 'Kyron Learning — see the platform',
     href: 'https://app.kyronlearning.com' },
 
-  { beat: 7,  x: 1590, y: 320, w: 245, h: 52, label: 'Hero Chat — full case study', href: 'https://dhalps.com/' },
-  { beat: 7,  x: 1590, y: 588, w: 245, h: 52, label: 'MatchMate — full case study', href: 'https://dhalps.com/' },
-  { beat: 7,  x: 1590, y: 856, w: 245, h: 52, label: 'Swayzee — full case study',   href: 'https://dhalps.com/' },
+  { beat: 13, x: 1596, y: 322, w: 236, h: 48, label: 'Hero Chat — full case study',    href: 'https://dhalps.com/' },
+  { beat: 13, x: 1596, y: 590, w: 236, h: 48, label: 'MatchMate — full case study',    href: 'https://dhalps.com/' },
+  { beat: 13, x: 1590, y: 858, w: 250, h: 48, label: 'Swayzee — full case study',      href: 'https://dhalps.com/' },
 
-  { beat: 8,  x: 1590, y: 320, w: 245, h: 52, label: 'Step Up Portals — full case study',   href: 'https://dhalps.com/' },
-  { beat: 8,  x: 1590, y: 588, w: 245, h: 52, label: 'Troops — full case study',            href: 'https://dhalps.com/' },
-  { beat: 8,  x: 1590, y: 856, w: 245, h: 52, label: 'That Feeling When — full case study', href: 'https://dhalps.com/' },
+  { beat: 15, x: 1596, y: 322, w: 236, h: 48, label: 'Step Up Portals — full case study',   href: 'https://dhalps.com/' },
+  { beat: 15, x: 1596, y: 590, w: 236, h: 48, label: 'Troops — full case study',            href: 'https://dhalps.com/' },
+  { beat: 15, x: 1590, y: 858, w: 250, h: 48, label: 'That Feeling When — full case study', href: 'https://dhalps.com/' },
 
-  { beat: 10, x:  992, y: 882, w: 254, h: 50, label: 'Email danihalp@me.com', href: 'mailto:danihalp@me.com' },
-  { beat: 10, x: 1263, y: 884, w: 273, h: 47, label: 'LinkedIn',             href: 'https://linkedin.com/in/daniel-halper' },
-  { beat: 10, x: 1552, y: 884, w: 250, h: 47, label: 'GitHub',               href: 'https://github.com/danielhalper' },
+  { beat: 17, x:  992, y: 882, w: 254, h: 50, label: 'Email danihalp@me.com', href: 'mailto:danihalp@me.com' },
+  { beat: 17, x: 1263, y: 884, w: 273, h: 47, label: 'LinkedIn',             href: 'https://linkedin.com/in/daniel-halper' },
+  { beat: 17, x: 1552, y: 884, w: 250, h: 47, label: 'GitHub',               href: 'https://github.com/danielhalper' },
 ];
 
 /* The eleven boxes along the bottom are in the footage too. They are a map, so
    they are wired as one: tapping a number runs the take to the beat where that
    project is on screen. */
 const TICK = { x: 745, y: 1006, w: 31, h: 30, step: 40 };
-const TICK_BEAT = [2, 4, 6, 6, 6, 7, 7, 7, 8, 8, 8];
+const TICK_BEAT = [3, 8, 11, 11, 11, 13, 13, 13, 15, 15, 15];
 
 const EPS    = 0.03;   // seconds; closer than this counts as parked
 const RATE   = 2;      /* the take is 30fps, so 2x presents 60 frames a second:
@@ -156,9 +152,6 @@ function buffered(from) {
    element stops fetching once it has "enough", so a beat that waits for more
    would wait for something that is never coming. Start it, and let the element
    itself say when it is short — which it does, by firing `waiting`. */
-/* Kept, but it should never be seen: the take is in memory by the time the page
-   opens. It is here for the fallback path, where the element loads the file the
-   ordinary way because fetch or streams were unavailable. */
 function waiting(on) { waitEl.classList.toggle('on', on); }
 plate.addEventListener('waiting', () => { if (busy) waiting(true); });
 plate.addEventListener('playing', () => waiting(false));
@@ -186,10 +179,6 @@ function drive() {
   busy = true;
 
   if (gap > 0) {
-    // a beat may open on a cut: skip the dead patch before rolling
-    const from = BEATS[beat].from;
-    if (from !== undefined && plate.currentTime < from - EPS) plate.currentTime = from;
-
     plate.playbackRate = RATE;      // some browsers reset the rate on a source change
     plate.play().catch(() => {});   // forward is real playback, so it never judders
     const fwd = () => {
@@ -210,10 +199,7 @@ function drive() {
       const now = performance.now();
       const step = Math.min((now - last) / 1000, 1 / 20) * REWIND;
       last = now;
-      let t = plate.currentTime - step;
-      // the gap the forward run jumped is not worth crawling back through
-      const cut = BEATS[beat + 1] && BEATS[beat + 1].from;
-      if (cut !== undefined && t <= cut) t = target;
+      const t = plate.currentTime - step;
       if (t <= target + EPS) return park();
       seekBack = back;
       plate.addEventListener('seeked', back, { once: true });
@@ -301,6 +287,12 @@ upright.addEventListener('change', e => {
    PRELOAD seconds in hand — enough to scroll into while the rest arrives. */
 
 const SRC = 'video.mp4';
+const PRELOAD = 8;       /* seconds in hand before the page opens. It is not 22,
+                            and cannot be: a paused <video> stops fetching once
+                            it reports HAVE_ENOUGH_DATA, so waiting for more
+                            would hang on a buffer that never grows. Eight is
+                            what a paused element will hold, and playback pulls
+                            the rest forward as the beats run. */
 
 const loader = document.getElementById('loader');
 const pct = document.getElementById('pct');
@@ -316,7 +308,7 @@ function reveal() {
   if (revealed) return;
   revealed = true;
   progress(1);
-  park();                              // beat 0 is set behind the loader
+  park();                              // the first beat is set behind the loader
 
   loader.classList.add('grab');
   setTimeout(() => loader.classList.add('lift'), 260);
@@ -324,53 +316,26 @@ function reveal() {
     loader.classList.add('gone');
     document.documentElement.classList.remove('loading');
   }, 620);
-  setTimeout(() => {
-    loader.remove();
-    hintTurn();
-    // and the take opens itself
-    if (beat === 0) { beat = INTRO; drive(); }
-  }, 1300);
+  setTimeout(() => { loader.remove(); hintTurn(); }, 1300);
 }
 
-/* The whole file is downloaded before the page is shown, and then handed to the
-   <video> as a blob. The streamed version opened sooner but a beat could outrun
-   the network mid-move, which is the lag: a plain src leaves the browser free to
-   fetch in dribs, and every beat that runs into a gap stalls. Once it is a blob
-   there is no network left in the loop — playback and the rewind seeks are all
-   out of memory. It costs a longer wait at the door; it buys a take that never
-   catches. */
-function handOver(url) {
-  plate.addEventListener('loadeddata', reveal, { once: true });
-  plate.addEventListener('error', reveal, { once: true });
-  plate.src = url;
-  plate.load();
-}
-
-async function download() {
-  const res = await fetch(SRC);
-  if (!res.ok) throw new Error(res.status);
-
-  const total = Number(res.headers.get('content-length')) || 0;
-  const chunks = [];
-  let got = 0;
-
-  const reader = res.body.getReader();
-  for (;;) {
-    const { done, value } = await reader.read();
-    if (done) break;
-    chunks.push(value);
-    got += value.length;
-    if (total) {
-      progress(clamp(got / total, 0, 1));
-      buf.textContent = `· ${(got / 1048576).toFixed(1)} / ${(total / 1048576).toFixed(1)} MB`;
-    }
+let waited = 0;
+let poll = setInterval(() => {
+  waited += 0.2;
+  const have = buffered(0);
+  // readiness counts for as much as seconds do — whichever is further along
+  progress(clamp(Math.max(have / PRELOAD, plate.readyState / 4), 0, 1));
+  buf.textContent = have > 0.1 ? `· ${have.toFixed(0)} s of ${Math.round(plate.duration || 105)} s ready`
+                               : '· connecting';
+  if (have >= PRELOAD || (plate.readyState >= 4 && waited > 1.2) || waited > 20) {
+    clearInterval(poll);
+    reveal();
   }
-  handOver(URL.createObjectURL(new Blob(chunks, { type: 'video/mp4' })));
-}
+}, 200);
 
-// no streams, no fetch, or the file simply is not there: let the element load it
-// the ordinary way rather than hanging on a blank page
-download().catch(() => handOver(SRC));
+plate.addEventListener('error', () => { clearInterval(poll); reveal(); }, { once: true });
+plate.src = SRC;
+plate.load();
 
 // ---- self-check: #selftest ---------------------------------------------------
 if (location.hash === '#selftest') {
@@ -389,12 +354,6 @@ if (location.hash === '#selftest') {
     if ((b.acts || 0) !== n) fails.push(`beat ${i} shows ${b.acts || 0} buttons but ${n} are wired`);
   });
   if (TICK_BEAT.length !== 11) fails.push('the tick row is not eleven');
-  if (!BEATS[INTRO]) fails.push('the intro beat does not exist');
-  BEATS.forEach((b, i) => {
-    if (b.from === undefined) return;
-    if (b.from >= b.t) fails.push(`beat ${i} cuts to ${b.from}s, which is not before its mark`);
-    if (i && b.from <= BEATS[i - 1].t) fails.push(`beat ${i} cuts back behind beat ${i - 1}`);
-  });
   TICK_BEAT.forEach((b, i) => { if (!BEATS[b]) fails.push(`tick ${i} points at no beat`); });
   plate.addEventListener('loadedmetadata', () => {
     const end = BEATS[BEATS.length - 1].t;

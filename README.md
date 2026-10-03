@@ -26,9 +26,18 @@ footage, not drawn in HTML. Three things follow from that:
 
 ## The beats
 
-Eighteen marks, seventeen scrolls, measured off the frames: the camera moves,
-the picture settles, and the settle is where a scroll parks. They live in
-`BEATS` at the top of `app.js`, in seconds.
+Eleven marks, nine scrolls. The first one is not scrolled to — the take opens
+itself, playing 0 → 8s the moment the loader lifts, so the page arrives already
+in motion. A scroll during the opening is not swallowed; it carries straight on.
+
+    0 → 8*   19   24   35   41   63   75   87   96   105
+    * played automatically
+
+`105` opens on a cut: `from: 97`. The second between 96 and 97 is footage where
+nothing moves, and holding on it reads as the page having frozen, so the beat
+jumps the gap in both directions. The marks live in `BEATS` at the top of
+`app.js`, in seconds; the first cut is kept in `backup/` with a note on how it
+differed.
 
 ## The video
 
@@ -38,18 +47,18 @@ in the whole take, which makes a rewind crawl. 30fps is also why the transport
 runs at `RATE 2` — 30 × 2 presents 60 frames a second, one per refresh on a 60Hz
 screen. An uneven multiple is what reads as judder.
 
-It is **streamed, not preloaded**: 55MB is too much to hold the page on. The
-loader opens the page once there are a few seconds in hand and playback pulls
-the rest forward.
+It is **downloaded whole before the page opens**, then handed to the `<video>`
+as a blob. An earlier cut streamed it and opened sooner, but a beat could outrun
+the network mid-move — a plain `src` leaves the browser free to fetch in dribs,
+and every beat that runs into a gap stalls. Once it is a blob there is no
+network left in the loop: playback and the rewind seeks are all out of memory.
+It costs a longer wait at the door and buys a take that never catches.
 
-## Hosting — one requirement
+## Hosting
 
-**The server must support HTTP range requests** (`Accept-Ranges: bytes`).
-Rewinding is a run of seeks, and a server that answers `200` to a `Range` header
-makes the browser treat the file as unseekable — every seek then lands at zero.
-GitHub Pages, Netlify, Vercel, S3/CloudFront, nginx and Apache all do this out
-of the box. Do **not** put `video.mp4` in Git LFS if you are serving from GitHub
-Pages: Pages does not resolve LFS pointers.
+Nothing special is required — the file is fetched once, in full, so the server
+does not need range requests. Do **not** put `video.mp4` in Git LFS if you are
+serving from GitHub Pages: Pages does not resolve LFS pointers.
 
 ## Files
 
